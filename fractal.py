@@ -26,14 +26,14 @@ def explore(exponents):
         plt.matshow(arr)
         plt.savefig(str(exp) + ".png")
 
-def exp_explore(cvals):
+def fn_explore(new_fn, cvals):
     for cval in cvals:
         plt.close()
-        new_fn = lambda x: np.exp(x)
         arr = julia_quadratic(fn=new_fn, c=cval)
         plt.matshow(arr)
         plt.savefig(str(cval) + ".png")
 
+
 if __name__ == "__main__":
     #explore(np.linspace(1, 3, 100))
-    exp_explore(np.linspace(1, 3, 10))
+    fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
