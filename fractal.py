@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def julia_quadratic(c=complex(0, 0.65)):
+def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65)):
     re_min, re_max = -2.0, 2.0
     im_min, im_max = -2.0, 2.0
     w, h = 512, 512
@@ -13,12 +13,13 @@ def julia_quadratic(c=complex(0, 0.65)):
             z = complex(re, im)
             n = 250
             while abs(z) < 10 and n > 50:
-                z = z * z + c
+                z = fn(z) + c
                 n -= 5
             new_arr[im_idx, re_idx] = n
     return new_arr
 
 if __name__ == "__main__":
-    arr = julia_quadratic()
+    new_fn = lambda x: x ** 1.1
+    arr = julia_quadratic(fn=new_fn)
     plt.matshow(arr)
     plt.show()
