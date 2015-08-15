@@ -18,8 +18,22 @@ def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65)):
             new_arr[im_idx, re_idx] = n
     return new_arr
 
+def explore(exponents):
+    for exp in exponents:
+        plt.close()
+        new_fn = lambda x: x ** exp
+        arr = julia_quadratic(fn=new_fn)
+        plt.matshow(arr)
+        plt.savefig(str(exp) + ".png")
+
+def exp_explore(cvals):
+    for cval in cvals:
+        plt.close()
+        new_fn = lambda x: np.exp(x)
+        arr = julia_quadratic(fn=new_fn, c=cval)
+        plt.matshow(arr)
+        plt.savefig(str(cval) + ".png")
+
 if __name__ == "__main__":
-    new_fn = lambda x: x ** 1.1
-    arr = julia_quadratic(fn=new_fn)
-    plt.matshow(arr)
-    plt.show()
+    #explore(np.linspace(1, 3, 100))
+    exp_explore(np.linspace(1, 3, 10))
