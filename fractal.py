@@ -35,17 +35,12 @@ def fn_explore(new_fn, cvals):
         plt.matshow(arr)
         plt.savefig(str(cval) + ".png")
 
-def scramble(arr):
-    # assumes square arr
-    # in place
-    npr.shuffle(arr)
-    npr.shuffle(arr.T)
-
-
 if __name__ == "__main__":
-    #fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
-    #explore(np.linspace(1, 3, 100))
+    # fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
+    # explore(np.linspace(1, 3, 100))
     frac_arr = julia_quadratic()
-    scramble(frac_arr)
+    # scrambling is inplace
+    npr.shuffle(frac_arr)
+    npr.shuffle(frac_arr.T)
     plt.imshow(frac_arr)
     plt.show()
