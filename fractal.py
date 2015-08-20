@@ -2,6 +2,7 @@ import numpy as np
 import numpy.random as npr
 import matplotlib.pyplot as plt
 import random
+import numba
 
 def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65)):
     re_min, re_max = -2.0, 2.0
@@ -36,15 +37,28 @@ def fn_explore(new_fn, cvals):
         plt.savefig(str(cval) + ".png")
 
 def energy(arr):
-    pass
+    # this is the inner loopiest inner loop I've
+    # ever inner looped
+    potential = 0
+    for orig_x in xrange(arr.shape[0]):
+        for orig_y in xrange(arr.shape[1]):
+            for compare_x in xrange(arr.shape[0]):
+                for compare_y in xrange(arr.shape[1]):
+                    if orig_x == compare_x or compare_x == compare_y:
+                        continue
+                    # potential += negatives and positives and shit / (l2 norm of that shit)
+    return potential
 
-def unscramble(scrambled_arr, num_iters=1000):
+def unscramble(scrambled_arr, num_iters=500):
     best_arr = scrambled_arr.copy()
     curr_arr = scrambled_arr.copy()
     best_energy = energy(best_arr)
     curr_energy = energy(curr_arr)
     i = 0
     while i < num_iters:
+        # generate some pairs of coords to swap
+        # swap on either x or y axis, see if energy good
+        # don't do the SA temperature yet
         pass
     return best_arr, best_energy
 
