@@ -35,6 +35,19 @@ def fn_explore(new_fn, cvals):
         plt.matshow(arr)
         plt.savefig(str(cval) + ".png")
 
+def energy(arr):
+    pass
+
+def unscramble(scrambled_arr, num_iters=1000):
+    best_arr = scrambled_arr.copy()
+    curr_arr = scrambled_arr.copy()
+    best_energy = energy(best_arr)
+    curr_energy = energy(curr_arr)
+    i = 0
+    while i < num_iters:
+        pass
+    return best_arr, best_energy
+
 if __name__ == "__main__":
     # fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
     # explore(np.linspace(1, 3, 100))
