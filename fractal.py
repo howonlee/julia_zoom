@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.random as npr
+import numpy.linalg as np_lin
 import matplotlib.pyplot as plt
 import random
 import numba
@@ -38,8 +39,10 @@ def fn_explore(new_fn, cvals):
 
 def energy(arr):
     # this is the inner loopiest inner loop I've
-    # ever inner looped
+    # we need to vectorize the shit out of this
+    # - or - translate to julia
     potential = 0
+    print "energy calculation..."
     for orig_x in xrange(arr.shape[0]):
         for orig_y in xrange(arr.shape[1]):
             for compare_x in xrange(arr.shape[0]):
@@ -47,6 +50,10 @@ def energy(arr):
                     if orig_x == compare_x or compare_x == compare_y:
                         continue
                     # potential += negatives and positives and shit / (l2 norm of that shit)
+    # possible other shit to try:
+    # point charges in blank space (as opposed to + and - charges competing)
+    # both of the above with r2 distance
+    # note the isotropy wrt symmetries here, maybe something to flip?
     return potential
 
 def unscramble(scrambled_arr, num_iters=500):
