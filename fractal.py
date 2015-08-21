@@ -4,6 +4,10 @@ import numpy.linalg as np_lin
 import matplotlib.pyplot as plt
 import random
 import numba
+import operator
+import lz4
+import zlib
+import sys
 
 def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65)):
     re_min, re_max = -2.0, 2.0
@@ -14,6 +18,9 @@ def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65)):
     new_arr = np.zeros((len(imag_range), len(real_range)))
     for im_idx, im in enumerate(imag_range):
         for re_idx, re in enumerate(real_range):
+###############
+###############
+###############
             z = complex(re, im)
             n = 250
             while abs(z) < 10 and n > 50:
@@ -37,44 +44,55 @@ def fn_explore(new_fn, cvals):
         plt.matshow(arr)
         plt.savefig(str(cval) + ".png")
 
-def energy(arr):
-    # this is the inner loopiest inner loop I've
-    # we need to vectorize the shit out of this
-    # - or - translate to julia
-    potential = 0
-    print "energy calculation..."
-    for orig_x in xrange(arr.shape[0]):
-        for orig_y in xrange(arr.shape[1]):
-            for compare_x in xrange(arr.shape[0]):
-                for compare_y in xrange(arr.shape[1]):
-                    if orig_x == compare_x or compare_x == compare_y:
-                        continue
-                    # potential += negatives and positives and shit / (l2 norm of that shit)
-    # possible other shit to try:
-    # point charges in blank space (as opposed to + and - charges competing)
-    # both of the above with r2 distance
-    # note the isotropy wrt symmetries here, maybe something to flip?
-    return potential
+def lz4_energy(arr):
+    return len(lz4.dumps(arr.tobytes()))
 
-def unscramble(scrambled_arr, num_iters=500):
+def energy(arr):
+    return len(zlib.compress(arr.tobytes(), 1))
+
+def generate_neighbors(best_arr):
+    neighbors = []
+    for x in xrange(3):
+        r1, r2 = random.randint(0,best_arr.shape[0]-1), random.randint(0, best_arr.shape[0]-1)
+        x_swap = best_arr.copy()
+        x_swap[[r1, r2],:] = x_swap[[r2, r1],:]
+        neighbors.append(x_swap)
+    for y in xrange(3):
+        r1, r2 = random.randint(0,best_arr.shape[1]-1), random.randint(0, best_arr.shape[1]-1)
+        y_swap = best_arr.copy()
+        y_swap[:,[r1, r2]] = y_swap[:,[r2, r1]]
+        neighbors.append(y_swap)
+    return neighbors
+
+
+def unscramble(scrambled_arr):
+    # currently just gradient descent
     best_arr = scrambled_arr.copy()
-    curr_arr = scrambled_arr.copy()
     best_energy = energy(best_arr)
-    curr_energy = energy(curr_arr)
     i = 0
-    while i < num_iters:
-        # generate some pairs of coords to swap
-        # swap on either x or y axis, see if energy good
-        # don't do the SA temperature yet
-        pass
-    return best_arr, best_energy
+    temperature = 1
+    try:
+        while True:
+            i += 1
+            if i % 20 == 0:
+                print i
+            neighbors = generate_neighbors(best_arr)
+            for neighbor in neighbors:
+                neighbor_energy = energy(neighbor)
+                if neighbor_energy < best_energy:
+                    print "found best"
+                    best_energy = neighbor_energy
+                    best_arr = neighbor
+    except KeyboardInterrupt:
+        plt.imshow(best_arr)
+        plt.savefig("unscrambled.png")
+        sys.exit(1)
 
 if __name__ == "__main__":
     # fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
-    # explore(np.linspace(1, 3, 100))
+    # explore(np.linspace(1, 3, 10))
     frac_arr = julia_quadratic()
     # scrambling is inplace
     npr.shuffle(frac_arr)
     npr.shuffle(frac_arr.T)
-    plt.imshow(frac_arr)
-    plt.show()
+    unscramble(frac_arr)
