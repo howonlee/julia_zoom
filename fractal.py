@@ -2,6 +2,7 @@ import numpy as np
 import numpy.random as npr
 import numpy.linalg as np_lin
 import matplotlib.pyplot as plt
+import scipy.sparse as sci_sp
 import random
 import numba
 import operator
@@ -18,9 +19,8 @@ def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65)):
     new_arr = np.zeros((len(imag_range), len(real_range)))
     for im_idx, im in enumerate(imag_range):
         for re_idx, re in enumerate(real_range):
-###############
-###############
-###############
+            # deal with the fact that we have equipotentials
+            # although we might not want them
             z = complex(re, im)
             n = 250
             while abs(z) < 10 and n > 50:
@@ -109,11 +109,12 @@ def get_box_count(box_size, mat):
             count += get_indiv_box_count(i, j, box_size, mat)
     return count
 
-def plot_box_counts(mat):
+def plot_box_counts(mat, name):
     """
     we can fit the lognormal distribution normally, I think
     """
-    box_sizes = list(reversed(range(3, 40)))
+    mat = sci_sp.dok_matrix(mat)
+    box_sizes = list(reversed(range(3, 100)))
     box_counts = []
     for box_size in box_sizes:
         print "getting box size ", box_size
@@ -122,15 +123,23 @@ def plot_box_counts(mat):
     plt.xlabel("box size")
     plt.ylabel("box count")
     plt.loglog(box_sizes, box_counts)
-    box_size_arr = np.array(box_sizes)
-    shape, loc, scale = sci_st.lognorm.fit(box_counts)
-    box_lognorm = sci_st.lognorm(s=shape, loc=loc, scale=scale)
-    plt.loglog(box_sizes, box_lognorm.pdf(box_sizes))
-    plt.show()
+    plt.savefig(name)
+
+def plot_fft(mat, name):
+    fft_mat = np.fft.fft2(mat)
+    plt.close()
+    plt.imshow(np.real(fft_mat))
+    plt.savefig(name + "_real")
+    plt.close()
+    plt.imshow(np.imag(fft_mat))
+    plt.savefig(name + "_imag")
 
 if __name__ == "__main__":
     # fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
     # explore(np.linspace(1, 3, 10))
     # test_unscrambling()
     # scrambling is inplace
-    mat = sci_st.to_dok(julia_quadratic())
+    frac_arr = julia_quadratic()
+    npr.shuffle(frac_arr)
+    npr.shuffle(frac_arr.T)
+    plot_fft(frac_arr, "fft_scrambled")
