@@ -3,6 +3,7 @@ import numpy.random as npr
 import numpy.linalg as np_lin
 import matplotlib.pyplot as plt
 import scipy.sparse as sci_sp
+import scipy.ndimage as sci_im
 import random
 import numba
 import operator
@@ -131,16 +132,27 @@ def plot_fft(mat, name):
     plt.imshow(np.log(np.abs(np.fft.fftshift(fft_mat))**2))
     plt.savefig(name + "_mag")
 
-def print_fft(mat):
-    fft_mat = np.fft.fft2(mat)
-    print fft_mat.sum()
+def plot_edges(mat, name):
+    plt.close()
+    sx = sci_im.filters.prewitt(mat, axis=0)
+    sy = sci_im.filters.prewitt(mat, axis=1)
+    processed = np.hypot(sx, sy)
+    plt.imshow(processed)
+    plt.savefig(name + "_edge")
+
+def print_edge(mat):
+    sx = sci_im.filters.prewitt(mat, axis=0)
+    sy = sci_im.filters.prewitt(mat, axis=1)
+    processed = np.hypot(sx, sy)
+    print np.sum(processed)
 
 if __name__ == "__main__":
     # fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
     # explore(np.linspace(1, 3, 10))
     # test_unscrambling()
     # scrambling is inplace
+    #plot_fft_edges(frac_arr, "fft_unshuffled")
     frac_arr = julia_quadratic()
-    npr.shuffle(frac_arr)
-    npr.shuffle(frac_arr.T)
-    plot_fft(frac_arr, "fft_shuffled")
+    #npr.shuffle(frac_arr)
+    #npr.shuffle(frac_arr.T)
+    print_edge(frac_arr)
