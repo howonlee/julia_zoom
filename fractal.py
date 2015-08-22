@@ -128,11 +128,12 @@ def plot_box_counts(mat, name):
 def plot_fft(mat, name):
     fft_mat = np.fft.fft2(mat)
     plt.close()
-    plt.imshow(np.real(fft_mat))
-    plt.savefig(name + "_real")
-    plt.close()
-    plt.imshow(np.imag(fft_mat))
-    plt.savefig(name + "_imag")
+    plt.imshow(np.log(np.abs(np.fft.fftshift(fft_mat))**2))
+    plt.savefig(name + "_mag")
+
+def print_fft(mat):
+    fft_mat = np.fft.fft2(mat)
+    print fft_mat.sum()
 
 if __name__ == "__main__":
     # fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
@@ -142,4 +143,4 @@ if __name__ == "__main__":
     frac_arr = julia_quadratic()
     npr.shuffle(frac_arr)
     npr.shuffle(frac_arr.T)
-    plot_fft(frac_arr, "fft_scrambled")
+    plot_fft(frac_arr, "fft_shuffled")
