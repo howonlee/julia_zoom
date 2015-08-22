@@ -88,11 +88,49 @@ def unscramble(scrambled_arr):
         plt.savefig("unscrambled.png")
         sys.exit(1)
 
-if __name__ == "__main__":
-    # fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
-    # explore(np.linspace(1, 3, 10))
+def test_unscrambling():
     frac_arr = julia_quadratic()
-    # scrambling is inplace
     npr.shuffle(frac_arr)
     npr.shuffle(frac_arr.T)
     unscramble(frac_arr)
+
+def get_indiv_box_count(i, j, box_size, mat):
+    #this is embarrasingly parallel
+    for k in xrange(0, box_size):
+        for l in xrange(0, box_size):
+            if mat.has_key((i + k, j + l)):
+                return 1
+    return 0
+
+def get_box_count(box_size, mat):
+    count = 0
+    for i in xrange(0, mat.shape[0], box_size):
+        for j in xrange(0, mat.shape[0], box_size):
+            count += get_indiv_box_count(i, j, box_size, mat)
+    return count
+
+def plot_box_counts(mat):
+    """
+    we can fit the lognormal distribution normally, I think
+    """
+    box_sizes = list(reversed(range(3, 40)))
+    box_counts = []
+    for box_size in box_sizes:
+        print "getting box size ", box_size
+        box_counts.append(get_box_count(box_size, mat))
+    plt.title("box size vs. box counts")
+    plt.xlabel("box size")
+    plt.ylabel("box count")
+    plt.loglog(box_sizes, box_counts)
+    box_size_arr = np.array(box_sizes)
+    shape, loc, scale = sci_st.lognorm.fit(box_counts)
+    box_lognorm = sci_st.lognorm(s=shape, loc=loc, scale=scale)
+    plt.loglog(box_sizes, box_lognorm.pdf(box_sizes))
+    plt.show()
+
+if __name__ == "__main__":
+    # fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
+    # explore(np.linspace(1, 3, 10))
+    # test_unscrambling()
+    # scrambling is inplace
+    mat = sci_st.to_dok(julia_quadratic())
