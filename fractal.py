@@ -39,14 +39,14 @@ def explore(exponents):
         new_fn = lambda x: x ** exp
         arr = julia_quadratic(fn=new_fn)
         plt.matshow(arr)
-        plt.savefig(str(exp) + ".png")
+        plt.savefig(".pics/" + str(exp) + ".png")
 
 def fn_explore(new_fn, cvals):
     for cval in cvals:
         plt.close()
         arr = julia_quadratic(fn=new_fn, c=cval)
         plt.matshow(arr)
-        plt.savefig(str(cval) + ".png")
+        plt.savefig(".pics/" + str(cval) + ".png")
 
 def lz4_energy(arr):
     return len(lz4.dumps(arr.tobytes()))
@@ -100,7 +100,7 @@ def unscramble(scrambled_arr):
                     best_arr = neighbor
     except KeyboardInterrupt:
         plt.imshow(best_arr)
-        plt.savefig("unscrambled.png")
+        plt.savefig(".pics/unscrambled.png")
         sys.exit(1)
 
 def test_unscrambling():
@@ -138,13 +138,13 @@ def plot_box_counts(mat, name):
     plt.xlabel("box size")
     plt.ylabel("box count")
     plt.loglog(box_sizes, box_counts)
-    plt.savefig(name)
+    plt.savefig("./pics" + name)
 
 def plot_fft(mat, name):
     fft_mat = np.fft.fft2(mat)
     plt.close()
     plt.imshow(np.log(np.abs(np.fft.fftshift(fft_mat))**2))
-    plt.savefig(name + "_mag")
+    plt.savefig(".pics/" + name + "_mag")
 
 def plot_edges(mat, name):
     plt.close()
@@ -152,7 +152,7 @@ def plot_edges(mat, name):
     sy = sci_im.filters.prewitt(mat, axis=1)
     processed = np.hypot(sx, sy)
     plt.imshow(processed)
-    plt.savefig(name + "_edge")
+    plt.savefig(".pics/" + name + "_edge")
 
 def print_edge(mat):
     sx = sci_im.filters.sobel(mat, axis=0)
@@ -169,7 +169,7 @@ def print_degree_stats(arr):
     degrees = arr.sum(axis=0)
     degrees = np.sort(degrees)
     plt.plot(degrees)
-    plt.savefig("fract_stats")
+    plt.savefig("./pics/fract_stats")
 
 if __name__ == "__main__":
     # fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))

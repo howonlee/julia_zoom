@@ -12,7 +12,7 @@ def plot_shuffled(circ):
     npr.shuffle(circ)
     npr.shuffle(circ.T)
     plt.imshow(circ)
-    plt.savefig("circ")
+    plt.savefig("./pics/circ")
 
 def circle_stats(circ):
     npr.shuffle(circ)
@@ -20,7 +20,7 @@ def circle_stats(circ):
     sums = circ.sum(axis=0)
     sums = np.sort(sums)
     plt.plot(sums)
-    plt.savefig("circle_stats")
+    plt.savefig("./pics/circle_stats")
 
 if __name__ == "__main__":
     circ = create_circle()
