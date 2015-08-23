@@ -27,7 +27,10 @@ def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65)):
             while abs(z) < 10 and n > 50:
                 z = fn(z) + c
                 n -= 5
-            new_arr[im_idx, re_idx] = n
+            if n == 50:
+                new_arr[im_idx, re_idx] = 50
+            else:
+                new_arr[im_idx, re_idx] = 0
     return new_arr
 
 def explore(exponents):
@@ -48,8 +51,17 @@ def fn_explore(new_fn, cvals):
 def lz4_energy(arr):
     return len(lz4.dumps(arr.tobytes()))
 
-def energy(arr):
+def zlib_energy(arr):
     return len(zlib.compress(arr.tobytes(), 1))
+
+def energy(arr):
+    sx = sci_im.filters.prewitt(arr, axis=0)
+    sy = sci_im.filters.sobel(arr, axis=1)
+    processed = np.hypot(sx, sy)
+    return np.sum(processed)
+
+def diff_energy(arr):
+    return np.sum(np.diff(arr, axis=0))
 
 def generate_neighbors(best_arr):
     neighbors = []
@@ -58,11 +70,13 @@ def generate_neighbors(best_arr):
         x_swap = best_arr.copy()
         x_swap[[r1, r2],:] = x_swap[[r2, r1],:]
         neighbors.append(x_swap)
-    for y in xrange(3):
-        r1, r2 = random.randint(0,best_arr.shape[1]-1), random.randint(0, best_arr.shape[1]-1)
-        y_swap = best_arr.copy()
-        y_swap[:,[r1, r2]] = y_swap[:,[r2, r1]]
-        neighbors.append(y_swap)
+    # taken out because we are only shuffling one dim currently
+
+    #for y in xrange(3):
+    #    r1, r2 = random.randint(0,best_arr.shape[1]-1), random.randint(0, best_arr.shape[1]-1)
+    #    y_swap = best_arr.copy()
+    #    y_swap[:,[r1, r2]] = y_swap[:,[r2, r1]]
+    #    neighbors.append(y_swap)
     return neighbors
 
 
@@ -92,7 +106,7 @@ def unscramble(scrambled_arr):
 def test_unscrambling():
     frac_arr = julia_quadratic()
     npr.shuffle(frac_arr)
-    npr.shuffle(frac_arr.T)
+    #npr.shuffle(frac_arr.T)
     unscramble(frac_arr)
 
 def get_indiv_box_count(i, j, box_size, mat):
@@ -141,18 +155,23 @@ def plot_edges(mat, name):
     plt.savefig(name + "_edge")
 
 def print_edge(mat):
-    sx = sci_im.filters.prewitt(mat, axis=0)
-    sy = sci_im.filters.prewitt(mat, axis=1)
+    sx = sci_im.filters.sobel(mat, axis=0)
+    sy = sci_im.filters.sobel(mat, axis=1)
     processed = np.hypot(sx, sy)
     print np.sum(processed)
+
+def print_diff(mat):
+    print np.sum(np.diff(mat))
 
 if __name__ == "__main__":
     # fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
     # explore(np.linspace(1, 3, 10))
-    # test_unscrambling()
     # scrambling is inplace
-    #plot_fft_edges(frac_arr, "fft_unshuffled")
+    # plot_fft_edges(frac_arr, "fft_unshuffled")
+    # print_edge(frac_arr)
     frac_arr = julia_quadratic()
-    #npr.shuffle(frac_arr)
-    #npr.shuffle(frac_arr.T)
-    print_edge(frac_arr)
+    npr.shuffle(frac_arr)
+    npr.shuffle(frac_arr.T)
+    plt.imshow(frac_arr)
+    plt.show()
+    #test_unscrambling()
