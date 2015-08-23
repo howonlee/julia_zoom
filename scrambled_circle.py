@@ -8,10 +8,21 @@ def create_circle():
     circle = circle < 20000
     return circle
 
-if __name__ == "__main__":
-    circ = create_circle()
-    # these are inplace
+def plot_shuffled(circ):
     npr.shuffle(circ)
     npr.shuffle(circ.T)
     plt.imshow(circ)
     plt.savefig("circ")
+
+def circle_stats(circ):
+    npr.shuffle(circ)
+    npr.shuffle(circ.T)
+    sums = circ.sum(axis=0)
+    sums = np.sort(sums)
+    plt.plot(sums)
+    plt.savefig("circle_stats")
+
+if __name__ == "__main__":
+    circ = create_circle()
+    circle_stats(circ)
+    # these are inplace

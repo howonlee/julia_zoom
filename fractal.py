@@ -163,6 +163,14 @@ def print_edge(mat):
 def print_diff(mat):
     print np.sum(np.diff(mat))
 
+def print_degree_stats(arr):
+    npr.shuffle(frac_arr)
+    npr.shuffle(frac_arr.T)
+    degrees = arr.sum(axis=0)
+    degrees = np.sort(degrees)
+    plt.plot(degrees)
+    plt.savefig("fract_stats")
+
 if __name__ == "__main__":
     # fn_explore(lambda x: np.tanh(x), np.linspace(1, 3, 10))
     # explore(np.linspace(1, 3, 10))
@@ -170,8 +178,7 @@ if __name__ == "__main__":
     # plot_fft_edges(frac_arr, "fft_unshuffled")
     # print_edge(frac_arr)
     frac_arr = julia_quadratic()
-    npr.shuffle(frac_arr)
-    npr.shuffle(frac_arr.T)
-    plt.imshow(frac_arr)
-    plt.show()
+    print_degree_stats(frac_arr)
+    #plt.imshow(frac_arr)
+    #plt.show()
     #test_unscrambling()
