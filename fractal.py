@@ -11,10 +11,10 @@ import lz4
 import zlib
 import sys
 
-def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65)):
+def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65), size=512):
     re_min, re_max = -2.0, 2.0
     im_min, im_max = -2.0, 2.0
-    w, h = 512, 512
+    w, h = size, size
     real_range = np.arange(re_min, re_max, (re_max - re_min)/ w)
     imag_range = np.arange(im_min, im_max, (im_max - im_min)/ h)
     new_arr = np.zeros((len(imag_range), len(real_range)))
@@ -54,14 +54,27 @@ def lz4_energy(arr):
 def zlib_energy(arr):
     return len(zlib.compress(arr.tobytes(), 1))
 
-def energy(arr):
+def edge_energy(arr):
     sx = sci_im.filters.prewitt(arr, axis=0)
-    sy = sci_im.filters.sobel(arr, axis=1)
+    sy = sci_im.filters.prewitt(arr, axis=1)
     processed = np.hypot(sx, sy)
     return np.sum(processed)
 
 def diff_energy(arr):
     return np.sum(np.diff(arr, axis=0))
+
+def chaos_energy(arr):
+    # chaos game energy
+    # don't know about it yet
+    # ifs = something ####
+    pass
+
+def energy(arr):
+    # electrical energy
+    # for every point:
+    # calculate potential energy wrt every other point
+    # boy, that will be long
+    return 0
 
 def generate_neighbors(best_arr):
     neighbors = []
@@ -177,8 +190,8 @@ if __name__ == "__main__":
     # scrambling is inplace
     # plot_fft_edges(frac_arr, "fft_unshuffled")
     # print_edge(frac_arr)
-    frac_arr = julia_quadratic()
-    print_degree_stats(frac_arr)
-    #plt.imshow(frac_arr)
-    #plt.show()
-    #test_unscrambling()
+    frac_arr = julia_quadratic(size=64)
+    # print_degree_stats(frac_arr)
+    plt.imshow(frac_arr)
+    plt.show()
+    # test_unscrambling()
