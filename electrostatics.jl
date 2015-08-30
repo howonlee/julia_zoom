@@ -1,36 +1,18 @@
+using PyPlot
 
-function electrostatics_energy(arr)
-  arr_size = shape(arr)
-  energy = 0
-  for i in arr_size[0] #### range iterator or something
-    for j in arr_size[1]
-      for k in arr_size[0]
-        for l in arr_size[1]
-          energy += something #######3
-        end
-      end
+function julia(z, c; maxiter=50)
+  for n = 1:maxiter
+    if abs2(z) > 4
+      return 0
+      #return n-1 if you want pretty
     end
+    z = z * z + c
   end
-  energy
+  return 1
+  # return maxiter if you want pretty
 end
 
-function create_fractal()
-  ####
-end
+@time m = [ uint8(julia(complex(r,i), complex(-.06,.67))) for i=1:-.002:-1, r=-1.5:.002:1.5 ];
 
-function scramble_fractal(arr)
-  scrambled
-end
-
-function unscramble(frac, num_iters)
-  unscrambled_frac = copy(frac)
-  for i in range(num_iters)
-    # do the optimization
-  end
-  unscrambled_frac
-end
-
-frac = create_fractal()
-scrambled_fract = scramble_fractal(frac)
-unscrambled_frac = unscramble(scrambled_frac)
-# save the unscrambled_frac to file
+imshow(m, extent=[-1.5, 1.5, -1, 1])
+savefig("pics/julialang_julia")
