@@ -35,15 +35,36 @@ def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65), size=512):
     return new_arr
 
 def energy(arr):
+    """
+    This will dominate the time
+    Easiest first optimization: use the sparsity, luke
+    """
     e = 0
-    center = some point ###############
-    for every point in arr: ###############
-        if point val == 1: ###########3##
-            e += dist ##########3
+    center = (arr.shape[0] // 2, arr.shape[1] // 2)
+    for x in xrange(arr.shape[0]):
+        for y in xrange(arr.shape[1]):
+            if arr[x,y] == 1:
+                e += dist to center ###########
     return e
 
+def perform_swap(arr, swap):
+    # performs swap in place
+    return arr
+
 def generate_neighbors(best_arr):
-    pass ################
+    swaps = generate some swaps ############
+    arrs = []
+    for swap in swaps:
+        new_arr = best_arr.copy()
+        arrs.append(perform_swap(new_arr, swap))
+    return arrs
+
+def scramble(arr):
+    swaps = [(num1, num2) for num1, num2 in xrange(some shit)] ################
+    new_arr = arr.copy()
+    for swap in swaps:
+        new_arr = perform_swap(new_arr, swap)
+    return new_arr
 
 def unscramble(scrambled_arr):
     pass #############333
