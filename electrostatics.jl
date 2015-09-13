@@ -39,6 +39,9 @@ function electropotential_energy(mat)
         for l = 1:mat_shape[2]
           second_point = mat[k,l]
           distance = sqrt((i - k) ^ 2 + (j - l) ^ 2)
+          if distance < 1
+            continue
+          end
           energy += (first_point * second_point) / distance
         end
       end
@@ -50,6 +53,7 @@ end
 @time m = [ uint8(julia(complex(r,i), complex(-.06,.67))) for i=1:-.01:-1, r=-1.5:.01:1.5 ];
 
 @time u_e = electropotential_energy(m)
+println(u_e)
 
 #imshow(m, extent=[-1.5, 1.5, -1, 1])
 #savefig("pics/julialang_shuffled")

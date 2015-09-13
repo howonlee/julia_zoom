@@ -10,6 +10,7 @@ import operator
 import lz4
 import zlib
 import sys
+import time
 
 def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65), size=512):
     re_min, re_max = -2.0, 2.0
@@ -69,12 +70,28 @@ def chaos_energy(arr):
     # ifs = something ####
     pass
 
+def r1_energy(arr):
+    print time.time()
+    shape = arr.shape
+    energy = 0
+    for i in xrange(shape[0]):
+        for j in xrange(shape[1]):
+            first_point = arr[i,j]
+            for k in xrange(shape[0]):
+                for l in xrange(shape[1]):
+                    second_point = arr[k,l]
+                    distance = np.sqrt((i - k) ** 2 + (j - l) ** 2)
+                    if distance < 1:
+                        continue
+                    energy += (first_point * second_point) / distance
+    print time.time()
+    return energy
+
 def energy(arr):
-    # electrical energy
-    # for every point:
-    # calculate potential energy wrt every other point
-    # boy, that will be long
-    return 0
+    """
+    DLA energy
+    Simply distanc
+    """
 
 def generate_neighbors(best_arr):
     neighbors = []
@@ -119,7 +136,7 @@ def unscramble(scrambled_arr):
 def test_unscrambling():
     frac_arr = julia_quadratic()
     npr.shuffle(frac_arr)
-    #npr.shuffle(frac_arr.T)
+    npr.shuffle(frac_arr.T)
     unscramble(frac_arr)
 
 def get_indiv_box_count(i, j, box_size, mat):
@@ -190,7 +207,11 @@ if __name__ == "__main__":
     # scrambling is inplace
     # plot_fft_edges(frac_arr, "fft_unshuffled")
     # print_edge(frac_arr)
-    frac_arr = julia_quadratic(size=64)
+    frac_arr = julia_quadratic(size=16)
+
+    #npr.shuffle(frac_arr)
+    #npr.shuffle(frac_arr.T)
+    print energy(frac_arr)
     # print_degree_stats(frac_arr)
     plt.imshow(frac_arr)
     plt.show()
