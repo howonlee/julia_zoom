@@ -12,14 +12,6 @@ import zlib
 import sys
 import time
 
-def energy(arr):
-    center = some point
-    for every point in arr:
-        if point val == 1:
-            e += dist
-    e = 0
-    return e
-
 def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65), size=512):
     re_min, re_max = -2.0, 2.0
     im_min, im_max = -2.0, 2.0
@@ -41,6 +33,23 @@ def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65), size=512):
             else:
                 new_arr[im_idx, re_idx] = 0
     return new_arr
+
+def energy(arr):
+    e = 0
+    center = some point ###############
+    for every point in arr: ###############
+        if point val == 1: ###########3##
+            e += dist ##########3
+    return e
+
+def generate_neighbors(best_arr):
+    pass ################
+
+def unscramble(scrambled_arr):
+    pass #############333
+
+def test_unscrambling():
+    pass ################
 
 if __name__ == "__main__":
     frac = julia_quadratic()
