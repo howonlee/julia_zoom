@@ -44,35 +44,109 @@ def energy(arr):
     for x in xrange(arr.shape[0]):
         for y in xrange(arr.shape[1]):
             if arr[x,y] == 1:
-                e += dist to center ###########
+                e += np.sqrt((x - center[0]) ** 2 + (y - center[1]) ** 2)
+                # taxi distance, because it's easy
     return e
 
 def perform_swap(arr, swap):
-    # performs swap in place
+    first, second = swap
+    arr[:, [first, second]] = arr[:, [second, first]]
+    arr[[first, second], :] = arr[[second, first], :]
     return arr
 
 def generate_neighbors(best_arr):
-    swaps = generate some swaps ############
+    swaps = [(random.randint(0, best_arr.shape[0]-1), random.randint(0, best_arr.shape[0]-1)) for x in xrange(10)]
     arrs = []
     for swap in swaps:
         new_arr = best_arr.copy()
         arrs.append(perform_swap(new_arr, swap))
     return arrs
 
-def scramble(arr):
-    swaps = [(num1, num2) for num1, num2 in xrange(some shit)] ################
+def scramble(arr, num_swaps=5000):
+    """
+    Smarter way to do it wouth be the knuth shuffle
+    """
+    swaps = [(random.randint(0, arr.shape[0]-1), random.randint(0, arr.shape[0]-1)) for x in xrange(num_swaps)]
     new_arr = arr.copy()
     for swap in swaps:
         new_arr = perform_swap(new_arr, swap)
     return new_arr
 
 def unscramble(scrambled_arr):
-    pass #############333
+    """
+    Let's have some proper tau-EO
+    """
+    best_energy = float("inf")
+    best_arr = scrambled_arr.copy()
+    i = 0
+    try:
+        while True:
+            i += 1
+            if i % 20 == 0:
+                print i
+            neighbors = generate_neighbors(best_arr)
+            for neighbor in neighbors:
+                neighbor_energy = energy(neighbor)
+                if neighbor_energy < best_energy:
+                    print "found best"
+                    best_energy = neighbor_energy
+                    best_arr = neighbor
+    except KeyboardInterrupt:
+        plt.imshow(best_arr)
+        plt.savefig("pics/unscrambled_2.png")
+        sys.exit(0)
+
+def ga_unscramble(scrambled_frac, num_agents=100, breeding_agents=10, name="ga_unscramble"):
+    agents = [scrambled_frac] * num_agents
+    try:
+        while True:
+            swaps = [(random.randint(0, best_arr.shape[0]-1), random.randint(0, best_arr.shape[0]-1)) for x in xrange(10)]
+            agents = [perform the swaps for swap, agents in zip(agents, swaps)] ###################
+            energies = [zlib_energy(agent) for agent in agents] ##################
+            new_agents = []
+            for only the top 10 energy ones: ################
+                new_agents.append(10 copies of each) ##############
+            agents = new_agents
+    except KeyboardInterrupt:
+        for x in xrange(num_agents):
+            print "printing ", x
+            plt.close()
+            plt.imshow(agents[x])
+            plt.savefig("pics/" + name + "_" + str(x))
+        sys.exit(0)
 
 def test_unscrambling():
-    pass ################
+    frac = julia_quadratic()
+    scrambled_frac = scramble(frac)
+    unscramble(scrambled_frac)
+
+def test_ga_unscrambling(name):
+    fract = julia_quadratic()
+    scrambled_fract = scrambled(frac)
+    ga_unscramble(scrambled_frac, name=name)
+
+def test_scrambling_gzip_size():
+    arr = julia_quadratic()
+    print len(zlib.compress(arr.tobytes(), 1))
+    samples = [0] * 10
+    num_samples = 100
+    for x in xrange(10):
+        print x
+        for sample in xrange(num_samples):
+            scrambled_arr = scramble(arr, num_swaps=x * 10)
+            samples[x] += len(zlib.compress(scrambled_arr.tobytes(), 1))
+    print [float(member) / float(num_samples) for member in samples]
+
+def test_add_julia_quadratic():
+    #first = np.zeros((512, 512))
+    #for x in np.arange(0.01, 1.00, 0.10):
+    #    print x
+    #    first += julia_quadratic(fn=lambda x: 1 / 1 + np.exp(-x), c=complex(0, x))
+    #first = julia_quadratic(fn=lambda x: x * (1 - x), c=1.2, size=512)
+    #plt.imshow(first)
+    #plt.show()
 
 if __name__ == "__main__":
-    frac = julia_quadratic()
-    plt.imshow(frac)
-    plt.show()
+    assert len(sys.argv) == 2
+    name = sys.argv[1]
+    test_ga_unscrambling(name)
