@@ -9,6 +9,7 @@ import numba
 import operator
 import lz4
 import zlib
+import signal
 import sys
 import time
 
@@ -36,6 +37,12 @@ def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65), size=512):
 
 def zlib_energy(arr):
     return len(zlib.compress(arr.tobytes(), 1))
+
+def lz4_energy(arr):
+    return len(lz4.dumps(arr.tobytes()))
+
+def gzip_energy(arr):
+    raise NotImplementedError()
 
 def energy(arr):
     """
@@ -106,15 +113,16 @@ def ga_unscramble(scrambled_frac, num_agents=10, breeding_agents=1, name="ga_uns
     i = 0
     try:
         while True:
-            print i
             i += 1
+            if i % 10 == 0:
+                print i
             swaps = [make_swaps(agents[0]) for x in xrange(num_agents)]
             agents = [perform_swap(agent, swap) for agent, swap in zip(agents, swaps)]
-            energies = np.array([zlib_energy(agent) for agent in agents])
+            energies = np.array([lz4_energy(agent) for agent in agents])
             agents = [agents[energies.argmax()]] * 10
     except KeyboardInterrupt:
         for x in xrange(num_agents):
-            print "printing ", x
+            sys.stderr.write(x)
             plt.close()
             plt.imshow(agents[x])
             plt.savefig("pics/" + name + "_" + str(x))
