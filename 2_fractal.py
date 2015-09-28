@@ -34,6 +34,9 @@ def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65), size=512):
                 new_arr[im_idx, re_idx] = 0
     return new_arr
 
+def zlib_energy(arr):
+    return len(zlib.compress(arr.tobytes(), 1))
+
 def energy(arr):
     """
     This will dominate the time
@@ -96,16 +99,20 @@ def unscramble(scrambled_arr):
         plt.savefig("pics/unscrambled_2.png")
         sys.exit(0)
 
+def get_top_agents(energies, agents):
+    pass
+
 def ga_unscramble(scrambled_frac, num_agents=100, breeding_agents=10, name="ga_unscramble"):
     agents = [scrambled_frac] * num_agents
     try:
         while True:
+############################ get the swaps right
             swaps = [(random.randint(0, best_arr.shape[0]-1), random.randint(0, best_arr.shape[0]-1)) for x in xrange(10)]
             agents = [perform the swaps for swap, agents in zip(agents, swaps)] ###################
-            energies = [zlib_energy(agent) for agent in agents] ##################
+            energies = [zlib_energy(agent) for agent in agents]
             new_agents = []
-            for only the top 10 energy ones: ################
-                new_agents.append(10 copies of each) ##############
+            for top_agent in get_top_agents(energies, agents): ################
+                new_agents.extend([top_agent] * 10) # this is in-place
             agents = new_agents
     except KeyboardInterrupt:
         for x in xrange(num_agents):
