@@ -99,21 +99,19 @@ def unscramble(scrambled_arr):
         plt.savefig("pics/unscrambled_2.png")
         sys.exit(0)
 
-def get_top_agents(energies, agents):
-    pass
-
-def ga_unscramble(scrambled_frac, num_agents=100, breeding_agents=10, name="ga_unscramble"):
+def ga_unscramble(scrambled_frac, num_agents=10, breeding_agents=1, name="ga_unscramble"):
     agents = [scrambled_frac] * num_agents
+    def make_swaps(agent):
+        return (random.randint(0, agent.shape[0]-1),random.randint(0, agent.shape[0]-1))
+    i = 0
     try:
         while True:
-############################ get the swaps right
-            swaps = [(random.randint(0, best_arr.shape[0]-1), random.randint(0, best_arr.shape[0]-1)) for x in xrange(10)]
-            agents = [perform the swaps for swap, agents in zip(agents, swaps)] ###################
-            energies = [zlib_energy(agent) for agent in agents]
-            new_agents = []
-            for top_agent in get_top_agents(energies, agents): ################
-                new_agents.extend([top_agent] * 10) # this is in-place
-            agents = new_agents
+            print i
+            i += 1
+            swaps = [make_swaps(agents[0]) for x in xrange(num_agents)]
+            agents = [perform_swap(agent, swap) for agent, swap in zip(agents, swaps)]
+            energies = np.array([zlib_energy(agent) for agent in agents])
+            agents = [agents[energies.argmax()]] * 10
     except KeyboardInterrupt:
         for x in xrange(num_agents):
             print "printing ", x
@@ -128,8 +126,8 @@ def test_unscrambling():
     unscramble(scrambled_frac)
 
 def test_ga_unscrambling(name):
-    fract = julia_quadratic()
-    scrambled_fract = scrambled(frac)
+    frac = julia_quadratic()
+    scrambled_frac = scramble(frac)
     ga_unscramble(scrambled_frac, name=name)
 
 def test_scrambling_gzip_size():
@@ -145,13 +143,13 @@ def test_scrambling_gzip_size():
     print [float(member) / float(num_samples) for member in samples]
 
 def test_add_julia_quadratic():
-    #first = np.zeros((512, 512))
-    #for x in np.arange(0.01, 1.00, 0.10):
-    #    print x
-    #    first += julia_quadratic(fn=lambda x: 1 / 1 + np.exp(-x), c=complex(0, x))
-    #first = julia_quadratic(fn=lambda x: x * (1 - x), c=1.2, size=512)
-    #plt.imshow(first)
-    #plt.show()
+    first = np.zeros((512, 512))
+    for x in np.arange(0.01, 1.00, 0.10):
+        print x
+        first += julia_quadratic(fn=lambda x: 1 / 1 + np.exp(-x), c=complex(0, x))
+    first = julia_quadratic(fn=lambda x: x * (1 - x), c=1.2, size=512)
+    plt.imshow(first)
+    plt.show()
 
 if __name__ == "__main__":
     assert len(sys.argv) == 2
