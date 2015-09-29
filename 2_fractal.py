@@ -88,12 +88,8 @@ def unscramble(scrambled_arr):
     """
     best_energy = float("inf")
     best_arr = scrambled_arr.copy()
-    i = 0
     try:
         while True:
-            i += 1
-            if i % 20 == 0:
-                print i
             neighbors = generate_neighbors(best_arr)
             for neighbor in neighbors:
                 neighbor_energy = energy(neighbor)
@@ -106,27 +102,22 @@ def unscramble(scrambled_arr):
         plt.savefig("pics/unscrambled_2.png")
         sys.exit(0)
 
-def ga_unscramble(scrambled_frac, num_agents=10, breeding_agents=1, name="ga_unscramble"):
+def ga_unscramble(scrambled_frac, num_agents=10, num_iters=100000, name="ga_unscramble"):
     agents = [scrambled_frac] * num_agents
     def make_swaps(agent):
         return (random.randint(0, agent.shape[0]-1),random.randint(0, agent.shape[0]-1))
-    i = 0
-    try:
-        while True:
-            i += 1
-            if i % 10 == 0:
-                print i
-            swaps = [make_swaps(agents[0]) for x in xrange(num_agents)]
-            agents = [perform_swap(agent, swap) for agent, swap in zip(agents, swaps)]
-            energies = np.array([lz4_energy(agent) for agent in agents])
-            agents = [agents[energies.argmax()]] * 10
-    except KeyboardInterrupt:
-        for x in xrange(num_agents):
-            sys.stderr.write(x)
-            plt.close()
-            plt.imshow(agents[x])
-            plt.savefig("pics/" + name + "_" + str(x))
-        sys.exit(0)
+    for i in xrange(num_iters):
+        if i % 200 == 0:
+            print i
+        swaps = [make_swaps(agents[0]) for x in xrange(num_agents)]
+        agents = [perform_swap(agent, swap) for agent, swap in zip(agents, swaps)]
+        energies = np.array([lz4_energy(agent) for agent in agents])
+        agents = [agents[energies.argmax()]] * 10
+    for x in xrange(num_agents):
+        plt.close()
+        plt.imshow(agents[x])
+        plt.savefig("pics/" + name + "_" + str(x))
+    sys.exit(0)
 
 def test_unscrambling():
     frac = julia_quadratic()

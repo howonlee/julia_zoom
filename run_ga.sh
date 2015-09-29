@@ -1,4 +1,5 @@
-for i in `seq 1 1`;
+for i in `seq 1 500`;
 do
-  python 2_fractal.py $i > /dev/null &
+  echo $i;
+  python 2_fractal.py $i
 done
