@@ -35,6 +35,12 @@ def julia_quadratic(fn=lambda x: x * x, c=complex(0, 0.65), size=512):
                 new_arr[im_idx, re_idx] = 0
     return new_arr
 
+def perform_swap(arr, swap):
+    first, second = swap
+    arr[:, [first, second]] = arr[:, [second, first]]
+    arr[[first, second], :] = arr[[second, first], :]
+    return arr
+
 def scramble(arr, num_swaps=5000):
     """
     Smarter way to do it wouth be the knuth shuffle
@@ -46,31 +52,77 @@ def scramble(arr, num_swaps=5000):
         new_arr = perform_swap(new_arr, swap)
     return new_arr
 
-def is_satisfied(idx, arr):
-############### check if is satisfied with life
-############### gonna have to have multiple iterations of this, I think
-    pass
+def get_prev(idx, arr):
+    prev = idx - 1
+    if prev < 0:
+        prev = arr.shape[0] - 1
+    return prev
 
-def unscramble(scrambled_arr, name="unscrambled_schelling"):
+def get_next(idx, arr):
+    next_idx = idx + 1
+    if next_idx >= arr.shape[0]:
+        next_idx = 0
+    return next_idx
+
+def is_satisfied(idx, arr, thresh=0.90):
+    prev_idx, next_idx = get_prev(idx, arr), get_next(idx, arr)
+    concordances = 0
+    for x in xrange(arr.shape[0]):
+        if arr[next_idx, x] == arr[idx, x]:
+            concordances += 1
+        if arr[prev_idx, x] == arr[idx, x]:
+            concordances += 1
+    # there's a few off-by-ones but just have a big lattice, OK?
+    ratio = float(concordances) / (arr.shape[0] * 2)
+    return ratio > thresh
+
+def random_nonsatisfied(satisfieds, chance=0.005):
+    idx = 0
+    while True:
+        idx = random.randint(0, len(satisfieds) -1)
+        if not satisfieds[idx]:
+            break
+        if random.random() < chance:
+            break
+    return idx
+
+def unscramble(scrambled_arr, name="unscrambled_schelling", num_iters=200):
     """
     Schelling unscramble: automata is actually on 1d lattice cuz of that "sorting" effect
     """
     curr_arr = scrambled_arr.copy()
-    satisfied = [is_satisfied(idx, curr_arr) for idx in xrange(curr_arr.shape[0])]
-    while not all(satisfied):
+    satisfied = [False] * curr_arr.shape[0]
+    print "starting..."
+    best_score = -1
+    best_arr = scrambled_arr.copy()
+    for x in xrange(num_iters):
+        score = sum(map(lambda x: 1 if x else 0, satisfied))
+        print "current: ", score, " best: ", best_score
+        if score > best_score:
+            print "found best"
+            best_score = score
+            best_arr = curr_arr.copy()
+        satisfied = [is_satisfied(idx, curr_arr) for idx in xrange(curr_arr.shape[0])]
         for x in xrange(curr_arr.shape[0]):
-            if not satisfied[x]:
-                swap with a random one #########
-                maybe try to swap with dissatisfied more? ##########
-    plt.imshow(curr_arr)
-    plt.savefig("./pics/" + name)
+            prev_x, next_x = get_prev(x, curr_arr), get_next(x, curr_arr)
+            if not satisfied[x] and (satisfied[prev_x] or satisfied[next_x]):
+                swap = (x, random_nonsatisfied(satisfied))
+                curr_arr = perform_swap(curr_arr, swap)
+    plt.imshow(best_arr)
+    plt.savefig("./pics/" + name + "_" + str(best_score))
+    sys.exit(0)
 
-def test_unscrambling():
+def test_unscrambling(name):
     frac = julia_quadratic()
     scrambled_frac = scramble(frac)
-    unscramble(scrambled_frac)
+    unscramble(scrambled_frac, name=name)
+
+def test_satisfaction():
+    frac = julia_quadratic()
+    satisfied = [is_satisfied(idx, frac) for idx in xrange(frac.shape[0])]
+    score = sum(map(lambda x: 1 if x else 0, satisfied))
+    print score
 
 if __name__ == "__main__":
     assert len(sys.argv) == 2
-    name = sys.argv[1]
-    test_ga_unscrambling(name)
+    test_unscrambling(sys.argv[1])
