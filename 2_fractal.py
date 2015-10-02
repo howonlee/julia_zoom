@@ -4,6 +4,7 @@ import numpy.linalg as np_lin
 import matplotlib.pyplot as plt
 import scipy.sparse as sci_sp
 import scipy.ndimage as sci_im
+import networkx as nx
 import random
 import numba
 import operator
@@ -82,25 +83,27 @@ def scramble(arr, num_swaps=5000):
         new_arr = perform_swap(new_arr, swap)
     return new_arr
 
-def unscramble(scrambled_arr):
+def fuckit_energy(arr, orig_arr):
+    return np.sum(np.abs(arr - orig_arr))
+
+def unscramble(scrambled_arr, orig_arr, num_iters=20000):
     """
     Let's have some proper tau-EO
     """
     best_energy = float("inf")
     best_arr = scrambled_arr.copy()
-    try:
-        while True:
-            neighbors = generate_neighbors(best_arr)
-            for neighbor in neighbors:
-                neighbor_energy = energy(neighbor)
-                if neighbor_energy < best_energy:
-                    print "found best"
-                    best_energy = neighbor_energy
-                    best_arr = neighbor
-    except KeyboardInterrupt:
-        plt.imshow(best_arr)
-        plt.savefig("pics/unscrambled_2.png")
-        sys.exit(0)
+    for i in xrange(num_iters):
+        neighbors = generate_neighbors(best_arr)
+        for neighbor in neighbors:
+            neighbor_energy = fuckit_energy(neighbor, orig_arr)
+            if neighbor_energy < best_energy:
+                print "found best"
+                print best_energy
+                best_energy = neighbor_energy
+                best_arr = neighbor
+    plt.imshow(best_arr)
+    plt.savefig("pics/unscrambled_2.png")
+    sys.exit(0)
 
 def ga_unscramble(scrambled_frac, num_agents=10, num_iters=100000, name="ga_unscramble"):
     agents = [scrambled_frac] * num_agents
@@ -122,7 +125,7 @@ def ga_unscramble(scrambled_frac, num_agents=10, num_iters=100000, name="ga_unsc
 def test_unscrambling():
     frac = julia_quadratic()
     scrambled_frac = scramble(frac)
-    unscramble(scrambled_frac)
+    unscramble(scrambled_frac, frac)
 
 def test_ga_unscrambling(name):
     frac = julia_quadratic()
@@ -150,7 +153,21 @@ def test_add_julia_quadratic():
     plt.imshow(first)
     plt.show()
 
+def read_data(filename="./corpus.txt"):
+    with open(filename) as corpus_file:
+        corpus = corpus_file.read().split()
+        bigrams = zip(corpus, corpus[1:])
+        net = nx.Graph()
+        net.add_edges_from(bigrams)
+        net_arr = nx.to_numpy_matrix(net)
+        scramble(net_arr, num_swaps=20000)
+    data_arr = net_arr[0:512, 0:512]
+    return data_arr
+
+def test_data_unscrambling():
+    frac = julia_quadratic()
+    data = read_data()
+    unscramble(data, frac)
+
 if __name__ == "__main__":
-    assert len(sys.argv) == 2
-    name = sys.argv[1]
-    test_ga_unscrambling(name)
+    test_data_unscrambling()
