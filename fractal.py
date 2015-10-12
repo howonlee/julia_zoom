@@ -207,11 +207,10 @@ if __name__ == "__main__":
     # scrambling is inplace
     # plot_fft_edges(frac_arr, "fft_unshuffled")
     # print_edge(frac_arr)
-    frac_arr = julia_quadratic(size=16)
+    frac_arr = julia_quadratic(c=complex(0.0,0.68))
 
     #npr.shuffle(frac_arr)
     #npr.shuffle(frac_arr.T)
-    print energy(frac_arr)
     # print_degree_stats(frac_arr)
     plt.imshow(frac_arr)
     plt.show()

@@ -86,16 +86,17 @@ def scramble(arr, num_swaps=5000):
 def fuckit_energy(arr, orig_arr):
     return np.sum(np.abs(arr - orig_arr))
 
-def unscramble(scrambled_arr, orig_arr, num_iters=20000):
+def unscramble(scrambled_arr, num_iters=20000):
     """
     Let's have some proper tau-EO
     """
     best_energy = float("inf")
     best_arr = scrambled_arr.copy()
+    summand_arr = julia_sum()
     for i in xrange(num_iters):
         neighbors = generate_neighbors(best_arr)
         for neighbor in neighbors:
-            neighbor_energy = fuckit_energy(neighbor, orig_arr)
+            neighbor_energy = fuckit_energy(neighbor, summand_arr)
             if neighbor_energy < best_energy:
                 print "found best"
                 print best_energy
@@ -125,7 +126,7 @@ def ga_unscramble(scrambled_frac, num_agents=10, num_iters=100000, name="ga_unsc
 def test_unscrambling():
     frac = julia_quadratic()
     scrambled_frac = scramble(frac)
-    unscramble(scrambled_frac, frac)
+    unscramble(scrambled_frac)
 
 def test_ga_unscrambling(name):
     frac = julia_quadratic()
@@ -144,13 +145,18 @@ def test_scrambling_gzip_size():
             samples[x] += len(zlib.compress(scrambled_arr.tobytes(), 1))
     print [float(member) / float(num_samples) for member in samples]
 
+def julia_sum():
+    summand = np.zeros((512, 512))
+    ct = 0
+    for x in np.arange(0.01, 1.00, 0.01):
+        ct += 1
+        print "summing : param " , x
+        summand += julia_quadratic(c=complex(0, x))
+    summand /= ct
+    return summand
+
 def test_add_julia_quadratic():
-    first = np.zeros((512, 512))
-    for x in np.arange(0.01, 1.00, 0.10):
-        print x
-        first += julia_quadratic(fn=lambda x: 1 / 1 + np.exp(-x), c=complex(0, x))
-    first = julia_quadratic(fn=lambda x: x * (1 - x), c=1.2, size=512)
-    plt.imshow(first)
+    plt.imshow(julia_sum())
     plt.show()
 
 def read_data(filename="./corpus.txt"):
@@ -165,9 +171,9 @@ def read_data(filename="./corpus.txt"):
     return data_arr
 
 def test_data_unscrambling():
-    frac = julia_quadratic()
+    #frac = julia_quadratic()
     data = read_data()
-    unscramble(data, frac)
+    unscramble(data)
 
 if __name__ == "__main__":
     test_data_unscrambling()
